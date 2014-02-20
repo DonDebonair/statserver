@@ -1,0 +1,54 @@
+- name: ensure sentry directory exists
+  file:
+    path: /var/sentry/
+    state: directory
+
+- name: install sentry and create virtualenv if needed
+  pip:
+    name: sentry[postgres]
+    virtualenv: /var/sentry/ve
+    virtualenv_site_packages: no
+
+- name: Copy sentry configuration
+  template: src=sentry_conf.py.j2 dest=/var/sentry/sentry_conf.py
+  notify: restart nginx
+
+- name: Copy nginx configuration for sentry
+  template: src=nginx-sentry.conf.j2 dest=/etc/nginx/sites-available/sentry.conf owner=www-data group=www-data
+  when: ansible_os_family == "Debian"
+
+- name: Copy nginx configuration for sentry
+  template: src=nginx-sentry.conf.j2 dest=/etc/nginx/sites-available/sentry.conf owner=nginx group=nginx
+  when: ansible_os_family == "RedHat"
+
+- name: Link nginx configuration for sentry
+  file: src=/etc/nginx/sites-available/sentry.conf dest=/etc/nginx/sites-enabled/sentry.conf state=link owner=www-data group=www-data
+  when: ansible_os_family == "Debian"
+  notify:
+    - restart nginx
+
+- name: Link nginx configuration for sentry
+  file: src=/etc/nginx/sites-available/sentry.conf dest=/etc/nginx/sites-enabled/sentry.conf state=link owner=nginx group=nginx
+  when: ansible_os_family == "RedHat"
+  notify:
+    - restart nginx
+
+- name: Copy supervisor configuration for sentry
+  template: src=supervisor-sentry.conf.j2 dest=/etc/supervisor/conf.d/sentry.conf
+  notify: 
+    - reload supervisor
+
+# Shell executable needs to be changed because Ubuntu uses /bin/dash when invoking /bin/sh, which doesn't support source. 
+# see http://stackoverflow.com/questions/13702425/source-command-not-found-in-sh-shell
+- name: sentry upgrade
+  action: shell source ve/bin/activate && sentry --config=sentry_conf.py upgrade executable=/bin/bash chdir=/var/sentry
+  notify:
+    - restart nginx
+    - reload supervisor
+
+# This is a bit of a hack to create a superuser automatically without interactive input. TODO: Create a proper python script for this!
+- name: create admin user
+  action: shell source ve/bin/activate && export SENTRY_CONF=/var/sentry/sentry_conf.py && python -c "from sentry.utils.runner import configure; configure(); from django.db import DEFAULT_DB_ALIAS as database; from sentry.models import User; User.objects.db_manager(database).create_superuser('{{ superuser_sentry.username }}', '{{ superuser_sentry.email }}', '{{ superuser_sentry.password }}')" executable=/bin/bash chdir=/var/sentry
+  notify:
+    - restart nginx
+    - reload supervisor
