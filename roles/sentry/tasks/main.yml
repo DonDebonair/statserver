@@ -1,3 +1,5 @@
+- include_vars: "{{ ansible_os_family }}.yml"
+
 - name: ensure sentry directory exists
   file:
     path: /var/sentry/
@@ -14,22 +16,10 @@
   notify: restart nginx
 
 - name: Copy nginx configuration for sentry
-  template: src=nginx-sentry.conf.j2 dest=/etc/nginx/sites-available/sentry.conf owner=www-data group=www-data
-  when: ansible_os_family == "Debian"
-
-- name: Copy nginx configuration for sentry
-  template: src=nginx-sentry.conf.j2 dest=/etc/nginx/sites-available/sentry.conf owner=nginx group=nginx
-  when: ansible_os_family == "RedHat"
+  template: src=nginx-sentry.conf.j2 dest=/etc/nginx/sites-available/sentry.conf owner={{ nginx_user }} group={{ nginx_group }}
 
 - name: Link nginx configuration for sentry
-  file: src=/etc/nginx/sites-available/sentry.conf dest=/etc/nginx/sites-enabled/sentry.conf state=link owner=www-data group=www-data
-  when: ansible_os_family == "Debian"
-  notify:
-    - restart nginx
-
-- name: Link nginx configuration for sentry
-  file: src=/etc/nginx/sites-available/sentry.conf dest=/etc/nginx/sites-enabled/sentry.conf state=link owner=nginx group=nginx
-  when: ansible_os_family == "RedHat"
+  file: src=/etc/nginx/sites-available/sentry.conf dest=/etc/nginx/sites-enabled/sentry.conf state=link owner={{ nginx_user }} group={{ nginx_group }}
   notify:
     - restart nginx
 
