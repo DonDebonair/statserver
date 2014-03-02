@@ -18,6 +18,7 @@
     sentry:
       server: sentry.local
       url: http://sentry.local
+      secret_key: 'my69eAMYjzqtmfaRJ107MeXCYDTaxQdNZPr8YOe/zOV5pIUoZa5biA=='
     db_sentry:
       name: sentry
       user: sentry
