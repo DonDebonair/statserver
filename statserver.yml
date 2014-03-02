@@ -8,9 +8,6 @@
       host: 0.0.0.0
       server: graphite.local
       secret_key: 'ob3sow^ik#4q(k5*tgw&6j+osyr^@0jus$yd+-#^&^d#%yim1!'
-    sentry:
-      server: sentry.local
-      url: http://sentry.local
     carbon:
       host: 0.0.0.0
       ssl: no
@@ -18,6 +15,9 @@
       name: graphite
       user: graphite
       password: graphite
+    sentry:
+      server: sentry.local
+      url: http://sentry.local
     db_sentry:
       name: sentry
       user: sentry
