@@ -12,19 +12,28 @@
     virtualenv_site_packages: no
 
 - name: Copy sentry configuration
-  template: src=sentry_conf.py.j2 dest=/var/sentry/sentry_conf.py
+  template: src=sentry_conf.py.j2 
+            dest=/var/sentry/sentry_conf.py
   notify: restart nginx
 
 - name: Copy nginx configuration for sentry
-  template: src=nginx-sentry.conf.j2 dest=/etc/nginx/sites-available/sentry.conf owner={{ nginx_user }} group={{ nginx_group }}
+  template: src=nginx-sentry.conf.j2 
+            dest=/etc/nginx/sites-available/sentry.conf 
+            owner={{ nginx_user }} 
+            group={{ nginx_group }}
 
 - name: Link nginx configuration for sentry
-  file: src=/etc/nginx/sites-available/sentry.conf dest=/etc/nginx/sites-enabled/sentry.conf state=link owner={{ nginx_user }} group={{ nginx_group }}
+  file: src=/etc/nginx/sites-available/sentry.conf 
+        dest=/etc/nginx/sites-enabled/sentry.conf 
+        state=link 
+        owner={{ nginx_user }} 
+        group={{ nginx_group }}
   notify:
     - restart nginx
 
 - name: Copy supervisor configuration for sentry
-  template: src=supervisor-sentry.conf.j2 dest=/etc/supervisor/conf.d/sentry.conf
+  template: src=supervisor-sentry.conf.j2 
+            dest=/etc/supervisor/conf.d/sentry.conf
   notify: 
     - reload supervisor
 
