@@ -21,10 +21,13 @@
   copy: src=supervisord.conf dest=/etc/supervisord.conf
 
 - name: Install as service with automatic start on redhat/centos
-  copy: src=supervisor-RedHat dest=/etc/rc.d/init.d/supervisord mode=0755 group=root owner=root
+  copy: src=supervisor-RedHat 
+        dest=/etc/rc.d/init.d/supervisord 
+        mode=0755 
+        group=root 
+        owner=root
   when: ansible_os_family == "RedHat"
 
 - name: Enable and run service
   service: name=supervisord state=started enabled=yes
   when: ansible_os_family == "RedHat"
-
