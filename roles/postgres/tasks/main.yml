@@ -71,7 +71,7 @@
     template: 'template0'
     state: present
 
-- name: grant access for sentry database to graphite user
+- name: grant access for graphite database to graphite user
   sudo_user: postgres
   postgresql_user:
     db: "{{ db_graphite.name }}"
