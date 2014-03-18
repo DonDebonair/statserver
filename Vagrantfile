@@ -14,9 +14,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     statserver.vm.box_url = "http://files.vagrantup.com/precise32.box"
     statserver.vm.network :private_network, ip: "192.168.33.30"
 
-    statserver.vm.provision "ansible" do |ansible| 
+    statserver.vm.provision "ansible" do |ansible|
       ansible.playbook = "statserver.yml"
-    end 
+      ansible.inventory_path = "hosts"
+      ansible.host_key_checking = false
+    end
   end
 
   config.vm.provider "virtualbox" do |v|
