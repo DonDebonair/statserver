@@ -5,6 +5,10 @@
     path: /var/sentry/
     state: directory
 
+- name: install libxml & libxslt
+  apt: name={{ item }}
+  with_items: [libxml2-dev,libxslt1-dev]
+
 - name: install sentry and create virtualenv if needed
   pip:
     name: sentry[postgres]
